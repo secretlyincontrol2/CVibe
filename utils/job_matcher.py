@@ -4,13 +4,14 @@ from typing import Dict, List, Any
 import openai
 import os
 import json
+from dotenv import load_dotenv
+load_dotenv()
 
 def match_jobs_with_ai(resume_data: Dict[str, Any], preferences: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
     Match resume data with jobs using OpenAI
     """
-    api_key = "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"
-    
+    api_key = os.getenv("API_KEY")    
     # If no API key is available, use mock data
     if not api_key:
         st.warning("No OpenAI API key found. Using mock data for demonstration.")
