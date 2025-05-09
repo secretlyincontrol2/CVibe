@@ -1,24 +1,21 @@
 import streamlit as st
 import random
 from typing import Dict, List, Any
-import openai
 import os
 import json
 from dotenv import load_dotenv
+from together import Together  # Make sure you install this package: pip install together
+
 load_dotenv()
 
 def match_jobs_with_ai(resume_data: Dict[str, Any], preferences: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Match resume data with jobs using OpenAI
+    Match resume data with jobs using Together AI
     """
-    api_key = os.getenv("API_KEY")    
-    # If no API key is available, use mock data
-    if not api_key:
-        st.warning("No OpenAI API key found. Using mock data for demonstration.")
-        return generate_mock_job_matches(resume_data, preferences)
-    
+    api_key = os.getenv("TOGETHER_API_KEY") 
+
     try:
-        client = openai.OpenAI(api_key=api_key)
+        client = Together(api_key=api_key)
         
         # Create a prompt that includes the resume data and preferences
         skills_str = ", ".join(resume_data.get("skills", []))
@@ -59,18 +56,17 @@ def match_jobs_with_ai(resume_data: Dict[str, Any], preferences: Dict[str, Any])
         7. A matching score from 0-100 based on how well the resume matches the job
         8. Application URL
         
-        Format your response as a JSON array of job objects.
+        Format your response as a JSON array of job objects. Do not include any extra text outside the JSON.
         """
         
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="Qwen/Qwen3-235B-A22B-fp8-tput",
             messages=[
                 {"role": "system", "content": "You are a job matching expert. Your task is to generate highly relevant job matches based on resume data and preferences."},
                 {"role": "user", "content": prompt}
-            ],
-            response_format={"type": "json_object"}
+            ]
         )
-        
+
         # Parse the JSON response
         content = response.choices[0].message.content
         jobs_data = json.loads(content)
@@ -82,13 +78,14 @@ def match_jobs_with_ai(resume_data: Dict[str, Any], preferences: Dict[str, Any])
             jobs = jobs_data
         else:
             jobs = []
-            
+        
         return jobs
-    
+
     except Exception as e:
         st.error(f"Error matching jobs with AI: {e}")
         return generate_mock_job_matches(resume_data, preferences)
 
+    
 def generate_mock_job_matches(resume_data: Dict[str, Any], preferences: Dict[str, Any]) -> List[Dict[str, Any]]:
     """Generate mock job match data"""
     from faker import Faker
