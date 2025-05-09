@@ -1,10 +1,22 @@
 import streamlit as st
 from utils.session_state import reset_state
+import os
+
+# Ensure the directory exists
+os.makedirs("assets/images", exist_ok=True)
 
 def render_sidebar():
     """Render the sidebar with app information and options"""
     with st.sidebar:
-        st.image("C:/Users/ayoni/OneDrive/Desktop/project/careerTech.jpg", width=300)
+        # Use a relative path for the image
+        image_path = "assets/images/careerTech.jpg"
+        
+        # Check if the file exists before rendering
+        if os.path.exists(image_path):
+            st.image(image_path, width=300)
+        else:
+            st.error("Sidebar image not found. Please ensure the file exists at 'assets/images/careerTech.jpg'.")
+        
         st.markdown("### About CVibe")
         st.markdown("""
         CVibe helps you optimize your job search by analyzing your resume and matching it with suitable job vacancies.
